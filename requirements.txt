@@ -1,0 +1,10 @@
+Django==3.2.16
+djangorestframework==3.14.0
+# PyMySQL==1.0.2
+loguru==0.5.3
+mysqlclient==2.1.1
+drf-yasg==1.21.4
+djangorestframework-api-key==2.2.0
+dj-static==0.0.6
+django-cors-headers==3.13.0
+python-dotenv==0.21.0

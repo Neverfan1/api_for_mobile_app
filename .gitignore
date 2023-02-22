@@ -1,0 +1,47 @@
+# config
+config/
+
+# python's envs
+venv/
+.venv/
+env/
+
+# Visual Studio
+.vscode/
+.history/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iws
+
+# macOS
+._*
+.DS_Store
+.fseventsd
+.Spotlight-V100
+
+# Windows
+Thumbs.db*
+ehthumbs*.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+#Python
+__pycache__/
+media/
+
+#Logs
+log
+log.txt
+Log.txt
+view_logs.txt
+loguruLogs 2.txt
+loguruLogs.txt
+authorization_logs.txt
+order_transfer_logs.txt
+order_logs.txt
+
+# отчёты
+*.xlsx
+*.zip
