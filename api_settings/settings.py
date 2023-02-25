@@ -1,4 +1,3 @@
-
 # *************************************** #
 #    Инициализация переменные среды       #
 # *************************************** #
@@ -8,6 +7,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import pymysql
+
 pymysql.install_as_MySQLdb()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +27,6 @@ if not PATH_LOG.exists():
         PATH_LOG_DIR.mkdir(parents=True)
     PATH_LOG = PATH_LOG_DIR
 
-
 # *************************************** #
 #       Application definition            #
 # *************************************** #
@@ -39,8 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
+    'rest_framework',
+    'drf_yasg',
+    'rest_framework.authtoken',
 ]
-
 
 # *************************************** #
 #          MIDDLEWARE SETTINGS            #
@@ -76,32 +78,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api_settings.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # *************************************** #
 #           DATABASE SETTINGS             #
 # *************************************** #
 #
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'PORT': os.getenv('DB_PORT'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'HOST': os.getenv('DB_HOST'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'PORT': os.getenv('DB_PORT'),
+    }
+}
 
 # *************************************** #
 #         VALIDATION SETTINGS             #
@@ -122,7 +123,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # *************************************** #
 #     Internationalization settings       #
 # *************************************** #
@@ -136,7 +136,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # *************************************** #
 #       Static files settings             #
@@ -153,3 +152,38 @@ USE_TZ = True
 #               field type                 #
 # *************************************** #
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/static/'
+
+# ******************************************** #
+# *              SWAGGER SETTINGS            * #
+# ******************************************** #
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+    'SECURITY': [{'api_key': []}],
+    'SHOW_REQUEST_HEADERS': True,
+}
+
+SWAGGER_PATH = os.getenv('SWAGGER_URL')
+
+# *************************************** #
+#            Email settings               #
+# *************************************** #
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'bookinglookingapp@gmail.com'
+EMAIL_HOST_PASSWORD = 'orkevxizreyykcvr'
+
+
+
+TOKEN_AUTHENTICATION_KEY = 'Authorization'
