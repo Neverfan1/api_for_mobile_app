@@ -1,5 +1,4 @@
 import random
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg import openapi
@@ -7,9 +6,8 @@ from drf_yasg.utils import swagger_auto_schema
 from .serializers import *
 from .models import *
 from django.core.mail import send_mail
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
 from .toolkit import *
+from django.http import HttpResponseBadRequest, HttpResponse
 
 
 class Register(APIView):
@@ -23,7 +21,6 @@ class Register(APIView):
     )
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-
         serializer.is_valid(raise_exception=True)
 
         email = serializer.data['email']
@@ -35,11 +32,32 @@ class Register(APIView):
                 return Response({
                     'message': 'Ошибка. Данный польователем зареган'
                 })
+            elif registr == 0:
+                user.phone_number = serializer.data['phone_number']
+                user.name = serializer.data['name']
+                user.surname = serializer.data['surname']
+                user.sex = serializer.data['sex']
+                user.sms = CheckCode.generate_code()
+                user.save()
+
+                send_mail(
+                    'Code for registration',
+                    'Code: ' + user.sms,
+                    'bookinglookingapp@gmail.com',
+                    [user.email],
+                    fail_silently=False
+                )
+                print(user.sms)
+
+                return Response({
+                    'data': user.id,
+                    'message': 'Запись в бд изменена, код на почту отправлен'
+                })
             else:
                 raise UsersApp.DoesNotExist
 
         except UsersApp.DoesNotExist:
-            # клиента с переданным номером телефона не существует
+            # пользователя с переданной почтой не существует
 
             phone_number = serializer.data['phone_number']
             name = serializer.data['name']
@@ -47,7 +65,7 @@ class Register(APIView):
             email = serializer.data['email']
             sex = serializer.data['sex']
 
-            new_client = UsersApp.objects.create(
+            new_user = UsersApp.objects.create(
 
                 name=name,
                 surname=surname,
@@ -59,15 +77,15 @@ class Register(APIView):
             )
             send_mail(
                 'Code for registration',
-                'Code: ' + new_client.sms,
+                'Code: ' + new_user.sms,
                 'bookinglookingapp@gmail.com',
-                [new_client.email],
+                [new_user.email],
                 fail_silently=False
             )
-            print(new_client.sms)
+            print(new_user.sms)
             return Response({
-                'data': new_client.id,
-                'message': 'Запись в бд сделана'
+                'User id': new_user.id,
+                'message': 'Запись в бд сделана, код на почту отправлен'
             })
 
 
@@ -80,7 +98,6 @@ class AuthUser(APIView):
     )
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
-
         serializer.is_valid(raise_exception=True)
 
         email = serializer.data['email']
@@ -94,36 +111,35 @@ class AuthUser(APIView):
                 [user.email],
                 fail_silently=False
             )
-            user.sms=new_sms
+            user.sms = new_sms
             user.save()
             print(new_sms)
             return Response({
-                'data': user.id,
-                'message': 'все ок'
+                'User id': user.id,
+                'message': 'Код отправлен на почту'
             })
 
         except UsersApp.DoesNotExist:
 
             return Response({
-                'message': 'Ошибка, такого клиента нет.'
+                'message': 'Ошибка, такого пользователя нет.'
             })
 
 
 class CheckCode(APIView):
-    """Класс для проверки смс кода для входа в приложение и установки новой сессии."""
+    """Класс для проверки  кода для входа в приложение и выдачи токена."""
 
     @swagger_auto_schema(
         operation_id="CheckCode",
         operation_summary=(
-                "Метод для проверки смс кода для окончания регистрация пользователя "
-                "и выдачи ему токена"
+                "Метод для проверки кода для окончания регистрация/авторизации"
+                " ользователя и выдачи ему токена"
         ),
         tags=['Регистрация и аутентификации в мобильных приложениях'],
         request_body=CheckCodeSerializer
     )
     def post(self, request):
         serializer = CheckCodeSerializer(data=request.data)
-
         serializer.is_valid(raise_exception=True)
 
         user_id = serializer.data['user_id']
@@ -138,7 +154,6 @@ class CheckCode(APIView):
         # if user.sms is None:
         #     raise MissingSMSCode
 
-        # Compare received and stored sms codes.
         if user.sms != sms_code:
             # raise DifferentSMSCode(received_sms_code)
             return Response({
@@ -152,8 +167,8 @@ class CheckCode(APIView):
 
         return Response({
             'token': token.key,
-            'data': user.id,
-            'message': 'Все ок.'
+            'User id': user.id,
+            'message': 'Токен выдан'
         })
 
     @staticmethod
@@ -162,10 +177,16 @@ class CheckCode(APIView):
         return str(random.randint(0, 9999)).rjust(4, '0')
 
 
-class MyView(APIView):
+class AuthenticatedAPIView(APIView):
+    """Класс для доступа к другим методам.
+    Только аутентифицированный пользователь имеет доступ"""
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super().as_view(**initkwargs)
+        return api_auth_required(view)
+
+
+class MyView(AuthenticatedAPIView):
+    """Тестовый класс"""
     def get(self, request):
-        # код для обработки запроса
-        if process_request(request):
-            return Response({'message': 'Вы аутентифицированы и имеете доступ к этому методу.'})
-        else:
-            return Response({'message': 'нет.'})
+        return HttpResponse('OK')
