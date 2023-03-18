@@ -14,3 +14,25 @@ def api_auth_required(func):
         except MyToken.DoesNotExist:
             return HttpResponseBadRequest('Invalid token')
     return wrapper
+
+def paginate_data(data, offset, count=None):
+    """
+    Возвращает список элементов данных согласно параметрам offset и count.
+    """
+    if offset and offset.isdigit():
+        offset = int(offset)
+    else:
+        offset = 0
+
+    if count and count.isdigit():
+        count = int(count)
+    else:
+        count = None
+
+    if count is not None:
+        paginated_data = data[offset:offset+count]
+    else:
+        paginated_data = data[offset:]
+
+    return paginated_data
+

@@ -50,7 +50,7 @@ class Register(APIView):
                 print(user.sms)
 
                 return Response({
-                    'data': user.id,
+                    'data': user.user_id,
                     'message': 'Запись в бд изменена, код на почту отправлен'
                 })
             else:
@@ -84,7 +84,7 @@ class Register(APIView):
             )
             print(new_user.sms)
             return Response({
-                'User id': new_user.id,
+                'User id': new_user.user_id,
                 'message': 'Запись в бд сделана, код на почту отправлен'
             })
 
@@ -115,7 +115,7 @@ class AuthUser(APIView):
             user.save()
             print(new_sms)
             return Response({
-                'User id': user.id,
+                'User id': user.user_id,
                 'message': 'Код отправлен на почту'
             })
 
@@ -145,7 +145,7 @@ class CheckCode(APIView):
         user_id = serializer.data['user_id']
         sms_code = serializer.data['code']
         try:
-            user = UsersApp.objects.get(id=user_id)
+            user = UsersApp.objects.get(user_id=user_id)
         except UsersApp.DoesNotExist:
             raise UsersApp.DoesNotExist(user_id)
         # except MultipleObjectsReturned:
@@ -157,7 +157,7 @@ class CheckCode(APIView):
         if user.sms != sms_code:
             # raise DifferentSMSCode(received_sms_code)
             return Response({
-                'data': user.id,
+                'data': user.user_id,
                 'message': 'Ошибка. Неверный код'
             })
 
@@ -167,7 +167,7 @@ class CheckCode(APIView):
 
         return Response({
             'token': token.key,
-            'User id': user.id,
+            'user id': user.user_id,
             'message': 'Токен выдан'
         })
 
@@ -180,13 +180,82 @@ class CheckCode(APIView):
 class AuthenticatedAPIView(APIView):
     """Класс для доступа к другим методам.
     Только аутентифицированный пользователь имеет доступ"""
+
     @classmethod
     def as_view(cls, **initkwargs):
         view = super().as_view(**initkwargs)
         return api_auth_required(view)
 
 
+class AccommodationDetail(AuthenticatedAPIView):
+    """Класс для работы с конкретными жилищами."""
+    serializer_class = AccommodationSerializer
+
+    @swagger_auto_schema(
+        operation_id="Accommodation",
+        operation_summary="Метод возвращает информацию о жилье",
+        tags=['Размещение']
+    )
+    def get(self, request, id):
+        """Возвращает информацию о жилье"""
+        data = Accommodation.objects.get(accommodation_id=id)
+        serializer = self.serializer_class(data, many=False)
+
+        return Response(serializer.data)
+
+
+class AccommodationAll(AuthenticatedAPIView):
+    """Класс для работы с жилищами."""
+    serializer_class = AccommodationSerializer
+
+    @swagger_auto_schema(
+        operation_id="Accommodation",
+        operation_summary="Метод возвращает информацию о всех жилищах",
+        tags=['Размещение']
+    )
+    def get(self, request):
+        """Возвращает информацию о жилье"""
+        offset = self.request.query_params.get('offset')
+        count = self.request.query_params.get('count')
+
+        data = Accommodation.objects.all().order_by('accommodation_id')
+        serializer = self.serializer_class(data, many=True)
+
+        response_data = paginate_data(serializer.data, offset, count)
+
+        return Response(response_data)
+
+
+class AccommodationFiltering(AuthenticatedAPIView):
+    """Класс для фильтрации жилищ."""
+    serializer_class = AccommodationFilterSerializer
+
+    @swagger_auto_schema(
+        operation_id="Accommodation",
+        operation_summary="Метод возвращает отфильтрованные жилища",
+        tags=['Размещение']
+    )
+    def get(self, request):
+        pass
+
+class OwnerDetail(AuthenticatedAPIView):
+    """Класс для работы с владельцем жилища."""
+    serializer_class = OwnerSerializer
+
+    @swagger_auto_schema(
+        operation_id="Owner",
+        operation_summary="Метод возвращает информацию о хозяине",
+        tags=['Хозяин']
+    )
+    def get(self, request, id):
+        """Возвращает информацию о жилье"""
+        data = Owner.objects.get(owner_id=id)
+        serializer = self.serializer_class(data, many=False)
+
+        return Response(serializer.data)
+
 class MyView(AuthenticatedAPIView):
     """Тестовый класс"""
+
     def get(self, request):
         return HttpResponse('OK')

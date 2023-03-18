@@ -20,7 +20,11 @@ auth_urls = [
     path("registration/", Register.as_view(), name="registration"),
     path("registration_finish/", CheckCode.as_view(), name="finish"),
     path("auth/", AuthUser.as_view(), name="auth"),
-    path("test/", MyView.as_view(), name="test")
+    path("test/", MyView.as_view(), name="test"),
+    path("accommodation-detail/<int:id>/", AccommodationDetail.as_view(), name="accommodation_detail"),
+    path("accommodation/", AccommodationAll.as_view(), name="accommodation"),
+    # path("accommodation-filter/", AccommodationFiltering.as_view(), name="accommodation_filter"),
+    path("owner-detail/<int:id>/", OwnerDetail.as_view(), name="owner_detail")
 ]
 
 # Shema-swagger-ui
