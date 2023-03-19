@@ -73,7 +73,7 @@ class Pricing(models.Model):
     accommodation_id = models.ForeignKey(Accommodation, on_delete=models.CASCADE)
     price = models.IntegerField()
     cancellation_Policy = models.TextField()
-    availability = models.JSONField()
+    availability = models.TextField()
 
     class Meta:
         db_table = 'pricing'

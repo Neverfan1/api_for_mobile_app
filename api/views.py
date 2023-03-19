@@ -8,6 +8,7 @@ from .models import *
 from django.core.mail import send_mail
 from .toolkit import *
 from django.http import HttpResponseBadRequest, HttpResponse
+from django.db.models import Q
 
 
 class Register(APIView):
@@ -199,10 +200,16 @@ class AccommodationDetail(AuthenticatedAPIView):
     def get(self, request, id):
         """Возвращает информацию о жилье"""
         data = Accommodation.objects.get(accommodation_id=id)
-        serializer = self.serializer_class(data, many=False)
+        pricing = Pricing.objects.get(accommodation_id=id)
+        serializer_pricing = PricingSerializer(pricing, many=False)
+        serializer_data = self.serializer_class(data, many=False)
 
-        return Response(serializer.data)
+        response_data = {
+            "data": serializer_data.data,
+            "pricing": serializer_pricing.data
+        }
 
+        return Response(response_data)
 
 class AccommodationAll(AuthenticatedAPIView):
     """Класс для работы с жилищами."""
@@ -236,7 +243,33 @@ class AccommodationFiltering(AuthenticatedAPIView):
         tags=['Размещение']
     )
     def get(self, request):
-        pass
+        type = self.request.query_params.get('type')
+        rooms = self.request.query_params.get('rooms')
+        beds = self.request.query_params.get('beds')
+        capacity = self.request.query_params.get('capacity')
+        offset = self.request.query_params.get('offset')
+        count = self.request.query_params.get('count')
+
+        # создаем пустой объект фильтра
+        filters = Q()
+
+        # добавляем условия фильтрации, если параметры заданы
+        if type:
+            filters &= Q(type=type)
+        if rooms:
+            filters &= Q(rooms=rooms)
+        if beds:
+            filters &= Q(beds=beds)
+        if capacity:
+            filters &= Q(capacity=capacity)
+
+        # фильтруем жилища по заданным параметрам
+        accommodations = Accommodation.objects.filter(filters).order_by('accommodation_id')
+
+        # сериализуем результат и возвращаем его
+        serializer = AccommodationSerializer(accommodations, many=True)
+        response_data = paginate_data(serializer.data, offset, count)
+        return Response(response_data)
 
 class OwnerDetail(AuthenticatedAPIView):
     """Класс для работы с владельцем жилища."""
