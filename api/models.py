@@ -25,7 +25,8 @@ class UsersApp(models.Model):
 
 # модель токена
 class MyToken(models.Model):
-    user = models.ForeignKey(UsersApp, related_name='auth_token', on_delete=models.CASCADE)
+    token_id = models.AutoField(primary_key=True)
+    user_id = models.ForeignKey(UsersApp, related_name='auth_token', on_delete=models.CASCADE,  db_column="user_id")
     key = models.CharField(max_length=40, unique=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -39,8 +40,6 @@ class MyToken(models.Model):
 
     class Meta:
         db_table = 'tokens'
-        verbose_name = 'Token'
-        verbose_name_plural = 'Tokens'
 
 
 class Owner(models.Model):
@@ -63,26 +62,27 @@ class Accommodation(models.Model):
     rooms = models.IntegerField()
     beds = models.IntegerField()
     capacity = models.IntegerField()
-    owner_id = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    owner_id = models.ForeignKey(Owner, on_delete=models.CASCADE,  db_column="owner_id")
 
     class Meta:
         db_table = 'accommodation'
 
 
 class Pricing(models.Model):
-    accommodation_id = models.ForeignKey(Accommodation, on_delete=models.CASCADE)
+    price_id = models.AutoField(primary_key=True)
+    accommodation_id = models.ForeignKey(Accommodation, on_delete=models.CASCADE, db_column="accommodation_id")
     price = models.IntegerField()
-    cancellation_Policy = models.TextField()
-    availability = models.TextField()
+    cancellation_policy = models.TextField()
 
     class Meta:
         db_table = 'pricing'
 
 
 class Booking(models.Model):
-    accommodation_id = models.ForeignKey(Accommodation, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(UsersApp, on_delete=models.CASCADE)
+    booking_id = models.AutoField(primary_key=True)
+    accommodation_id = models.ForeignKey(Accommodation, on_delete=models.CASCADE, db_column="accommodation_id")
+    user_id = models.ForeignKey(UsersApp, on_delete=models.CASCADE, db_column="user_id")
     booking_dates = models.JSONField()
 
     class Meta:
-        db_table = 'Booking'
+        db_table = 'booking'

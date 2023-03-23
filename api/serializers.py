@@ -34,50 +34,15 @@ class CheckCodeSerializer(serializers.Serializer):
     code = serializers.CharField()
 
 
-class AccommodationSerializer(serializers.Serializer):
-    address = serializers.CharField(max_length=255)
-    description = serializers.CharField(max_length=1000)
-    images = serializers.JSONField()
-    type = serializers.CharField(max_length=20)
-    rooms = serializers.IntegerField()
-    beds = serializers.IntegerField()
-    capacity = serializers.IntegerField()
+class AccommodationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Accommodation
+        fields = '__all__'
+
 
 class PricingSerializer(serializers.Serializer):
     price = serializers.IntegerField()
-    cancellation_policy = serializers.CharField(max_length=1000),
-    availability = serializers.JSONField()
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        # Convert availability string to dictionary
-        availability_dict = json.loads(representation['availability'])
-        # Remove past days for each month
-        now = datetime.datetime.now()
-        current_year = now.year
-        current_month = now.month
-
-        # Get dates for current month and next two months
-        dates = []
-        for month in range(current_month, current_month + 3):
-            if month > 12:
-                # If we've gone past December, wrap around to January
-                year = current_year + 1
-                month -= 12
-            else:
-                year = current_year
-
-            month_name = datetime.datetime.strptime(str(month), "%m").strftime("%B")
-
-            if month_name in availability_dict:
-                for date in availability_dict[month_name]:
-                    if date >= now.day and month_name == now.strftime("%B"):
-                        dates.append({'month': month_name, 'date': date, 'year': year})
-                    elif month_name != now.strftime("%B"):
-                        dates.append({'month': month_name, 'date': date, 'year': year})
-
-        representation['availability'] = dates
-        return representation
+    cancellation_policy = serializers.CharField(max_length=1000)
 
 
 class AccommodationFilterSerializer(serializers.Serializer):
@@ -88,8 +53,13 @@ class AccommodationFilterSerializer(serializers.Serializer):
     price_from = serializers.IntegerField()
     price_to = serializers.IntegerField()
 
-class OwnerSerializer (serializers.Serializer):
-    name = serializers.CharField(max_length=255)
-    contact = serializers.CharField(max_length=255)
-    description = serializers.CharField(max_length=1000)
-    image = serializers.CharField(max_length=1000)
+
+class OwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Owner
+        fields = '__all__'
+
+
+class BookingSerializer(serializers.Serializer):
+    booking_dates = serializers.ListField()
+    accommodation_id = serializers.IntegerField()

@@ -24,7 +24,9 @@ auth_urls = [
     path("accommodation-detail/<int:id>/", AccommodationDetail.as_view(), name="accommodation_detail"),
     path("accommodation/", AccommodationAll.as_view(), name="accommodation"),
     path("accommodation-filter/", AccommodationFiltering.as_view(), name="accommodation_filter"),
-    path("owner-detail/<int:id>/", OwnerDetail.as_view(), name="owner_detail")
+    path("owner-detail/<int:id>/", OwnerDetail.as_view(), name="owner_detail"),
+    path("booking-date/", BookingDate.as_view(), name="booking_date")
+
 ]
 
 # Shema-swagger-ui

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import pymysql
+from corsheaders.defaults import default_headers
 
 pymysql.install_as_MySQLdb()
 
@@ -41,7 +42,8 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'drf_yasg',
-    'rest_framework.authtoken',
+    # 'rest_framework.authtoken',
+    "corsheaders",
 ]
 
 # *************************************** #
@@ -56,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = 'api_settings.urls'
@@ -175,6 +179,20 @@ SWAGGER_SETTINGS = {
 
 SWAGGER_PATH = os.getenv('SWAGGER_URL')
 
+# ******************************************** #
+# *               CORS SETTINGS              * #
+# ******************************************** #
+
+CORS_ALLOWED_ORIGINS = json.loads(os.getenv('CORS_ALLOWED_ORIGINS', '[]'))
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "ID",
+    "X-Client-Type",
+]
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST"
+]
 # *************************************** #
 #            Email settings               #
 # *************************************** #
