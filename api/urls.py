@@ -19,14 +19,16 @@ app_name = "api_mobile"
 auth_urls = [
     path("registration/", Register.as_view(), name="registration"),
     path("registration_finish/", CheckCode.as_view(), name="finish"),
-    path("auth/", AuthUser.as_view(), name="auth"),
+    path("auth/", AuthUser.as_view(), name="auth")
+]
+
+app_urls = [
     path("test/", MyView.as_view(), name="test"),
     path("accommodation-detail/<int:id>/", AccommodationDetail.as_view(), name="accommodation_detail"),
     path("accommodation/", AccommodationAll.as_view(), name="accommodation"),
     path("accommodation-filter/", AccommodationFiltering.as_view(), name="accommodation_filter"),
     path("owner-detail/<int:id>/", OwnerDetail.as_view(), name="owner_detail"),
     path("booking-date/", BookingDate.as_view(), name="booking_date")
-
 ]
 
 # Shema-swagger-ui
@@ -39,4 +41,5 @@ swagger_urls = [
 urlpatterns = [
     *auth_urls,
     *swagger_urls,
+    *app_urls
 ]

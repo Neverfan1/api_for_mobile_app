@@ -57,6 +57,7 @@ class Accommodation(models.Model):
     accommodation_id = models.AutoField(primary_key=True)
     address = models.CharField(max_length=255)
     description = models.TextField()
+    image_preview = models.TextField()
     images = models.JSONField()
     type = models.CharField(max_length=20)
     rooms = models.IntegerField()

@@ -1,4 +1,3 @@
-
 import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -87,7 +86,9 @@ class Register(APIView):
             )
             print(new_user.sms)
             return Response({
-                'User id': new_user.user_id,
+                'data': {
+                    'user id': new_user.user_id
+                },
                 'message': 'Запись в бд сделана, код на почту отправлен'
             })
 
@@ -118,7 +119,9 @@ class AuthUser(APIView):
             user.save()
             print(new_sms)
             return Response({
-                'User id': user.user_id,
+                'data': {
+                    'User id': user.user_id
+                },
                 'message': 'Код отправлен на почту'
             })
 
@@ -136,7 +139,7 @@ class CheckCode(APIView):
         operation_id="CheckCode",
         operation_summary=(
                 "Метод для проверки кода для окончания регистрация/авторизации"
-                " ользователя и выдачи ему токена"
+                " пользователя и выдачи ему токена"
         ),
         tags=['Регистрация и аутентификации в мобильных приложениях'],
         request_body=CheckCodeSerializer
@@ -169,8 +172,10 @@ class CheckCode(APIView):
         user.save()
 
         return Response({
-            'token': token.key,
-            'user id': user.user_id,
+            'data': {
+                'token': token.key,
+                'user id': user.user_id
+            },
             'message': 'Токен выдан'
         })
 
@@ -180,17 +185,7 @@ class CheckCode(APIView):
         return str(random.randint(0, 9999)).rjust(4, '0')
 
 
-class AuthenticatedAPIView(APIView):
-    """Класс для доступа к другим методам.
-    Только аутентифицированный пользователь имеет доступ"""
-
-    @classmethod
-    def as_view(cls, **initkwargs):
-        view = super().as_view(**initkwargs)
-        return api_auth_required(view)
-
-
-class AccommodationDetail(AuthenticatedAPIView):
+class AccommodationDetail(APIView):
     """Класс для работы с конкретными жилищами."""
     serializer_class = AccommodationSerializer
 
@@ -199,6 +194,7 @@ class AccommodationDetail(AuthenticatedAPIView):
         operation_summary="Метод возвращает информацию о жилье",
         tags=['Размещение']
     )
+    @require_authentication
     def get(self, request, id):
         """Возвращает информацию о жилье"""
         data = Accommodation.objects.get(accommodation_id=id)
@@ -224,15 +220,17 @@ class AccommodationDetail(AuthenticatedAPIView):
             for date in all_dates:
                 if date["month"] == booked["month"] and date["year"] == booked["year"]:
                     date["date"] = list(set(date["date"]) - set(booked["date"]))
+
+        information['free_dates'] = all_dates
         response_data = {
             "data": information,
-            "free_dates": all_dates,
+            "message": 'Информация получена',
         }
 
         return Response(response_data)
 
 
-class AccommodationAll(AuthenticatedAPIView):
+class AccommodationAll(APIView):
     """Класс для работы с жилищами."""
     serializer_class = AccommodationSerializer
 
@@ -241,6 +239,7 @@ class AccommodationAll(AuthenticatedAPIView):
         operation_summary="Метод возвращает информацию о всех жилищах",
         tags=['Размещение']
     )
+    @require_authentication
     def get(self, request):
         """Возвращает информацию о жилье"""
         offset = self.request.query_params.get('offset')
@@ -255,12 +254,16 @@ class AccommodationAll(AuthenticatedAPIView):
             item.update(serializer_pricing.data[i])
             data_with_pricing.append(item)
 
-        response_data = paginate_data(data_with_pricing, offset, count)
+        data = paginate_data(data_with_pricing, offset, count)
+        response_data = {
+            "data": data,
+            "message": 'Информация получена',
+        }
 
         return Response(response_data)
 
 
-class AccommodationFiltering(AuthenticatedAPIView):
+class AccommodationFiltering(APIView):  # TODO сделать фильтрацию по цене, и чтобы выводилась цена
     """Класс для фильтрации жилищ."""
     serializer_class = AccommodationFilterSerializer
 
@@ -269,11 +272,14 @@ class AccommodationFiltering(AuthenticatedAPIView):
         operation_summary="Метод возвращает отфильтрованные жилища",
         tags=['Размещение']
     )
+    @require_authentication
     def get(self, request):
         type = self.request.query_params.get('type')
         rooms = self.request.query_params.get('rooms')
         beds = self.request.query_params.get('beds')
         capacity = self.request.query_params.get('capacity')
+        # price_to = self.request.query_params.get('price_to')
+        # price_from = self.request.query_params.get('price_from')
         offset = self.request.query_params.get('offset')
         count = self.request.query_params.get('count')
 
@@ -289,17 +295,24 @@ class AccommodationFiltering(AuthenticatedAPIView):
             filters &= Q(beds=beds)
         if capacity:
             filters &= Q(capacity=capacity)
+        # if price_from and price_to:
+        #     filters &= Q(pricing__price__gte=price_from, pricing__price__lte=price_to)
 
         # фильтруем жилища по заданным параметрам
         accommodations = Accommodation.objects.filter(filters).order_by('accommodation_id')
 
         # сериализуем результат и возвращаем его
         serializer = AccommodationSerializer(accommodations, many=True)
-        response_data = paginate_data(serializer.data, offset, count)
+        data = paginate_data(serializer.data, offset, count)
+        response_data = {
+            "data": data,
+            "message": 'Информация получена',
+        }
+
         return Response(response_data)
 
 
-class OwnerDetail(AuthenticatedAPIView):
+class OwnerDetail(APIView):
     """Класс для работы с владельцем жилища."""
     serializer_class = OwnerSerializer
 
@@ -308,12 +321,17 @@ class OwnerDetail(AuthenticatedAPIView):
         operation_summary="Метод возвращает информацию о хозяине",
         tags=['Хозяин']
     )
+    @require_authentication
     def get(self, request, id):
         """Возвращает информацию о жилье"""
         data = Owner.objects.get(owner_id=id)
         serializer = self.serializer_class(data, many=False)
+        response_data = {
+            "data": serializer.data,
+            "message": 'Информация получена',
+        }
 
-        return Response(serializer.data)
+        return Response(response_data)
 
 
 class BookingDate(APIView):
@@ -324,6 +342,7 @@ class BookingDate(APIView):
         operation_summary="Метод бронирования дат",
         tags=['Бронь']
     )
+    @require_authentication
     def post(self, request):
         """Делает бронь на определенное жилье для определенного пользователя"""
 
@@ -360,13 +379,15 @@ class BookingDate(APIView):
         new_booking.save()
 
         return Response({
-            'booking_id': new_booking.booking_id,
-            'message': 'Запись в бд сделана'
+            'data': {
+                'booking_id': new_booking.booking_id
+            },
+            'message': 'Жилье забронированно'
         })
 
+#TODO сделать метод для получении информации о пользователе
 
-class MyView(AuthenticatedAPIView):
-    """Тестовый класс"""
-
+class MyView(APIView):
+    @require_authentication
     def get(self, request):
         return HttpResponse('OK')
