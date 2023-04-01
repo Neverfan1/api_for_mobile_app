@@ -4,6 +4,8 @@ from datetime import datetime
 import datetime
 from functools import wraps
 from django.http import HttpResponse
+from .ex_handler import exception_handler, TokenError
+
 
 
 def require_authentication(view_func):
@@ -17,7 +19,7 @@ def require_authentication(view_func):
                 request.user = user
                 return view_func(self, request, *args, **kwargs)
         except MyToken.DoesNotExist:
-            return HttpResponse('Unauthorized', status=401)
+            raise TokenError()
 
     return wrapper
 
