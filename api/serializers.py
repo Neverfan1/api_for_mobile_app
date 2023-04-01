@@ -34,30 +34,57 @@ class CheckCodeSerializer(serializers.Serializer):
     code = serializers.CharField()
 
 
+class PricingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pricing
+        fields = ('price', 'cancellation_policy',)
+
+
 class AccommodationSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = Accommodation
-        fields = '__all__'
+        fields = ('accommodation_id', 'type', 'image_preview', 'price')
+
+    def get_price(self, obj):
+        pricing = obj.pricing_set.first()
+        return pricing.price if pricing else None
 
 
-class PricingSerializer(serializers.Serializer):
-    price = serializers.IntegerField()
-    cancellation_policy = serializers.CharField(max_length=1000)
+class AccommodationDetailSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+    cancellation_policy = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Accommodation
+        fields = ('accommodation_id', 'address', 'description',
+                  'image_preview', 'images', 'type', 'rooms', 'beds',
+                  'capacity', 'owner_id', 'price', 'cancellation_policy')
+
+    def get_price(self, obj):
+        pricing = obj.pricing_set.first()
+        return pricing.price if pricing else None
+
+    def get_cancellation_policy(self, obj):
+        pricing = obj.pricing_set.first()
+        return pricing.cancellation_policy if pricing else None
 
 
-class AccommodationFilterSerializer(serializers.Serializer):
-    type = serializers.CharField(max_length=20)
-    rooms = serializers.IntegerField()
-    beds = serializers.IntegerField()
-    capacity = serializers.IntegerField()
-    price_from = serializers.IntegerField()
-    price_to = serializers.IntegerField()
+# class AccommodationFilterSerializer(serializers.Serializer):
+#     type = serializers.CharField(max_length=20)
+#     rooms = serializers.IntegerField()
+#     beds = serializers.IntegerField()
+#     capacity = serializers.IntegerField()
+#     price_from = serializers.IntegerField()
+#     price_to = serializers.IntegerField()
 
 
 class OwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Owner
         fields = '__all__'
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

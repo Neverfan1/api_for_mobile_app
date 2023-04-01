@@ -186,7 +186,7 @@ class CheckCode(APIView):
 
 class AccommodationDetail(APIView):
     """Класс для работы с конкретными жилищами."""
-    serializer_class = AccommodationSerializer
+    serializer_class = AccommodationDetailSerializer
 
     @swagger_auto_schema(
         operation_id="Accommodation",
@@ -197,11 +197,11 @@ class AccommodationDetail(APIView):
     def get(self, request, id):
         """Возвращает информацию о жилье"""
         data = Accommodation.objects.get(accommodation_id=id)
-        pricing = Pricing.objects.get(accommodation_id=id)
-        serializer_pricing = PricingSerializer(pricing, many=False)
+        # pricing = Pricing.objects.get(accommodation_id=id)
+        # serializer_pricing = PricingSerializer(pricing, many=False)
         serializer_data = self.serializer_class(data, many=False)
         information = serializer_data.data
-        information.update(serializer_pricing.data)
+        # information.update(serializer_pricing.data)
 
         all_dates = to_representation()
 
@@ -246,15 +246,9 @@ class AccommodationAll(APIView):
         count = self.request.query_params.get('count')
 
         data = Accommodation.objects.all().order_by('accommodation_id')
-        pricing = Pricing.objects.all().order_by('accommodation_id')
         serializer = self.serializer_class(data, many=True)
-        serializer_pricing = PricingSerializer(pricing, many=True)
-        data_with_pricing = []
-        for i, item in enumerate(serializer.data):
-            item.update(serializer_pricing.data[i])
-            data_with_pricing.append(item)
 
-        data = paginate_data(data_with_pricing, offset, count)
+        data = paginate_data(serializer.data, offset, count)
         response_data = {
             "data": data,
             "message": 'Информация получена',
@@ -265,7 +259,7 @@ class AccommodationAll(APIView):
 
 class AccommodationFiltering(APIView):  # TODO сделать фильтрацию по цене, и чтобы выводилась цена
     """Класс для фильтрации жилищ."""
-    serializer_class = AccommodationFilterSerializer
+    serializer_class = AccommodationSerializer
 
     @swagger_auto_schema(
         operation_id="Accommodation",
@@ -278,8 +272,8 @@ class AccommodationFiltering(APIView):  # TODO сделать фильтраци
         rooms = self.request.query_params.get('rooms')
         beds = self.request.query_params.get('beds')
         capacity = self.request.query_params.get('capacity')
-        # price_to = self.request.query_params.get('price_to')
-        # price_from = self.request.query_params.get('price_from')
+        price_to = self.request.query_params.get('price_to')
+        price_from = self.request.query_params.get('price_from')
         offset = self.request.query_params.get('offset')
         count = self.request.query_params.get('count')
 
@@ -295,14 +289,14 @@ class AccommodationFiltering(APIView):  # TODO сделать фильтраци
             filters &= Q(beds=beds)
         if capacity:
             filters &= Q(capacity=capacity)
-        # if price_from and price_to:
-        #     filters &= Q(pricing__price__gte=price_from, pricing__price__lte=price_to)
+        if price_from and price_to:
+            filters &= Q(pricing__price__gte=price_from, pricing__price__lte=price_to)
 
         # фильтруем жилища по заданным параметрам
         accommodations = Accommodation.objects.filter(filters).order_by('accommodation_id')
 
         # сериализуем результат и возвращаем его
-        serializer = AccommodationSerializer(accommodations, many=True)
+        serializer = self.serializer_class(accommodations, many=True)
         data = paginate_data(serializer.data, offset, count)
         response_data = {
             "data": data,
@@ -407,8 +401,3 @@ class UserDetail(APIView):
         }
 
         return Response(response_data)
-
-class MyView(APIView):
-    @require_authentication
-    def get(self, request):
-        return HttpResponse('OK')

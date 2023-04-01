@@ -23,7 +23,6 @@ auth_urls = [
 ]
 
 app_urls = [
-    path("test/", MyView.as_view(), name="test"),
     path("accommodation-detail/<int:id>/", AccommodationDetail.as_view(), name="accommodation_detail"),
     path("accommodation/", AccommodationAll.as_view(), name="accommodation"),
     path("accommodation-filter/", AccommodationFiltering.as_view(), name="accommodation_filter"),
