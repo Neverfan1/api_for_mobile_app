@@ -16,9 +16,9 @@ class Register(APIView):
     """Класс для регистрации пользователей."""
 
     @swagger_auto_schema(
-        operation_id="Register",
-        operation_summary="Метод для регистрации пользователей в мобильных приложениях",
-        tags=['Регистрация и аутентификации в мобильных приложениях'],
+        operation_id="Registration",
+        operation_summary="Метод для регистрации пользователей",
+        tags=['Регистрация и аутентификации'],
         request_body=RegistrationSerializer
     )
     def post(self, request):
@@ -95,9 +95,9 @@ class Register(APIView):
 
 class AuthUser(APIView):
     @swagger_auto_schema(
-        operation_id="Auth",
-        operation_summary="Метод для аутенфикации пользователей в мобильных приложениях",
-        tags=['Регистрация и аутентификации в мобильных приложениях'],
+        operation_id="Authenticationuth",
+        operation_summary="Метод для аутенфикации пользователей",
+        tags=['Регистрация и аутентификации'],
         request_body=AuthSerializer
     )
     def post(self, request):
@@ -138,10 +138,9 @@ class CheckCode(APIView):
     @swagger_auto_schema(
         operation_id="CheckCode",
         operation_summary=(
-                "Метод для проверки кода для окончания регистрация/авторизации"
-                " пользователя и выдачи ему токена"
+                "Метод для проверки кода и выдачи токена пользователю"
         ),
-        tags=['Регистрация и аутентификации в мобильных приложениях'],
+        tags=['Регистрация и аутентификации'],
         request_body=CheckCodeSerializer
     )
     def post(self, request):
@@ -192,7 +191,7 @@ class AccommodationDetail(APIView):
     @swagger_auto_schema(
         operation_id="Accommodation",
         operation_summary="Метод возвращает информацию о жилье",
-        tags=['Размещение']
+        tags=['Жилища']
     )
     @require_authentication
     def get(self, request, id):
@@ -237,7 +236,8 @@ class AccommodationAll(APIView):
     @swagger_auto_schema(
         operation_id="Accommodation",
         operation_summary="Метод возвращает информацию о всех жилищах",
-        tags=['Размещение']
+        tags=['Жилища']
+
     )
     @require_authentication
     def get(self, request):
@@ -270,7 +270,7 @@ class AccommodationFiltering(APIView):  # TODO сделать фильтраци
     @swagger_auto_schema(
         operation_id="Accommodation",
         operation_summary="Метод возвращает отфильтрованные жилища",
-        tags=['Размещение']
+        tags=['Жилища']
     )
     @require_authentication
     def get(self, request):
@@ -323,7 +323,7 @@ class OwnerDetail(APIView):
     )
     @require_authentication
     def get(self, request, id):
-        """Возвращает информацию о жилье"""
+        """Возвращает информацию о хозяине"""
         data = Owner.objects.get(owner_id=id)
         serializer = self.serializer_class(data, many=False)
         response_data = {
@@ -340,7 +340,8 @@ class BookingDate(APIView):
     @swagger_auto_schema(
         operation_id="BookingDate",
         operation_summary="Метод бронирования дат",
-        tags=['Бронь']
+        tags=['Бронь'],
+        request_body=BookingSerializer
     )
     @require_authentication
     def post(self, request):
@@ -385,7 +386,27 @@ class BookingDate(APIView):
             'message': 'Жилье забронированно'
         })
 
-#TODO сделать метод для получении информации о пользователе
+
+class UserDetail(APIView):
+    """Класс для работы с владельцем."""
+    serializer_class = UserSerializer
+
+    @swagger_auto_schema(
+        operation_id="User",
+        operation_summary="Метод возвращает информацию о пользователе",
+        tags=['Пользователь']
+    )
+    @require_authentication
+    def get(self, request, id):
+        """Возвращает информацию о хозяине"""
+        data = UsersApp.objects.get(user_id=id)
+        serializer = self.serializer_class(data, many=False)
+        response_data = {
+            "data": serializer.data,
+            "message": 'Информация получена',
+        }
+
+        return Response(response_data)
 
 class MyView(APIView):
     @require_authentication

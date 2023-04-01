@@ -59,6 +59,12 @@ class OwnerSerializer(serializers.ModelSerializer):
         model = Owner
         fields = '__all__'
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsersApp
+        exclude = ('user_id', 'registr', 'sms', 'is_active',
+                   'personal_data')
+
 
 class BookingSerializer(serializers.Serializer):
     booking_dates = serializers.ListField()

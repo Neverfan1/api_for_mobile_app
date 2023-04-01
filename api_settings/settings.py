@@ -165,16 +165,23 @@ STATIC_URL = '/static/'
 # ******************************************** #
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        'api_key': {
+        'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
+        },
+        'ID': {
+            'type': 'apiKey',
+            'name': 'ID',
+            'in': 'header'
         }
     },
-    'USE_SESSION_AUTH': False,
-    'JSON_EDITOR': True,
-    'SECURITY': [{'api_key': []}],
-    'SHOW_REQUEST_HEADERS': True,
+    'SECURITY_REQUIREMENTS': [
+        {
+            'Bearer': [],
+            'ID': []
+        }
+    ]
 }
 
 SWAGGER_PATH = os.getenv('SWAGGER_URL')
