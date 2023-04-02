@@ -155,14 +155,14 @@ class OwnerDetail(APIView):
         return Response(response_data)
 
 
-class BookingDate(APIView):
-    serializers_class = BookingSerializer
+class CreateBookingDate(APIView):
+    serializers_class = CreateBookingSerializer
 
     @swagger_auto_schema(
         operation_id="BookingDate",
         operation_summary="Метод бронирования дат",
         tags=['Бронь'],
-        request_body=BookingSerializer
+        request_body=CreateBookingSerializer
     )
     @exception_handler('Бронь')
     @require_authentication
@@ -209,6 +209,30 @@ class BookingDate(APIView):
         })
 
 
+class CancelBookingDate(APIView):
+    serializers_class = CancelBookingSerializer
+
+    @swagger_auto_schema(
+        operation_id="CancelBooking",
+        operation_summary="Метод удаления брони",
+        tags=['Бронь']
+    )
+    @exception_handler('Бронь')
+    @require_authentication
+    def delete(self, request, id):
+        """Удаляет бронь по ID"""
+        booking = Booking.objects.get(booking_id=id)
+
+        booking.delete()
+
+        return Response({
+            'data': {
+                'booking_id': id
+            },
+            'message': 'Бронь успешно удалена'
+        })
+
+
 class UserDetail(APIView):
     """Класс для работы с владельцем."""
     serializer_class = UserSerializer
@@ -231,5 +255,5 @@ class UserDetail(APIView):
 
         return Response(response_data)
 
-#TODO написать get метод, который показывает текущие брони пользователя
-#TODO написать del метод, который удаляет бронь
+# TODO написать get метод, который показывает текущие брони пользователя
+# TODO написать get метод, который показывает все жилища хозяина

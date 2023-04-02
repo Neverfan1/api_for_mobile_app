@@ -93,6 +93,14 @@ class UserSerializer(serializers.ModelSerializer):
                    'personal_data')
 
 
-class BookingSerializer(serializers.Serializer):
-    booking_dates = serializers.ListField()
-    accommodation_id = serializers.IntegerField()
+class CreateBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ('booking_dates', 'accommodation_id')
+
+
+class CancelBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = 'booking_id'
+
