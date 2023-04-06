@@ -1,4 +1,6 @@
 import random
+
+from drf_yasg import openapi
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
@@ -18,7 +20,20 @@ class Register(APIView):
         operation_id="Registration",
         operation_summary="Метод для регистрации пользователей",
         tags=['Регистрация и аутентификации'],
-        request_body=RegistrationSerializer
+        request_body=RegistrationSerializer,
+        responses={
+            200: openapi.Response(
+                description='Регистрация',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "user id": 4
+                        },
+                        "message": "Код для регистрации отправлен на почту test2@mail.ru"
+                    }
+                }
+            )
+        }
     )
     @auth_exception_handler
     def post(self, request):
@@ -50,8 +65,10 @@ class Register(APIView):
                 print(user.sms)
 
                 return Response({
-                    'data': user.user_id,
-                    'message': 'Запись в бд изменена, код на почту отправлен'
+                    'data': {
+                        'user id': user.user_id
+                    },
+                    'message': f'Код для регистрации отправлен на почту {user.email}'
                 })
 
         except UsersApp.DoesNotExist:
@@ -85,16 +102,29 @@ class Register(APIView):
                 'data': {
                     'user id': new_user.user_id
                 },
-                'message': 'Запись в бд сделана, код на почту отправлен'
+                'message': f'Код для регистрации отправлен на почту {new_user.email}'
             })
 
 
 class AuthUser(APIView):
     @swagger_auto_schema(
         operation_id="Authenticationuth",
-        operation_summary="Метод для аутенфикации пользователей",
+        operation_summary="Метод для аутентификации пользователей",
         tags=['Регистрация и аутентификации'],
-        request_body=AuthSerializer
+        request_body=AuthSerializer,
+        responses={
+            200: openapi.Response(
+                description='Аутентификация',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "user id": 4
+                        },
+                        "message": "Код для входа отправлен на почту test2@mail.ru"
+                    }
+                }
+            )
+        }
     )
     @auth_exception_handler
     def post(self, request):
@@ -106,7 +136,7 @@ class AuthUser(APIView):
             user = UsersApp.objects.get(email=email)
             new_sms = CheckCode.generate_code()
             send_mail(
-                'Code for registration',
+                'Code for authenticationuth',
                 'Code: ' + new_sms,
                 'bookinglookingapp@gmail.com',
                 [user.email],
@@ -121,7 +151,7 @@ class AuthUser(APIView):
                 'data': {
                     'User id': user.user_id
                 },
-                'message': 'Код отправлен на почту'
+                'message': f'Код для входа отправлен на почту {user.email}'
             })
 
         except UsersApp.DoesNotExist:
@@ -137,7 +167,21 @@ class CheckCode(APIView):
                 "Метод для проверки кода и выдачи токена пользователю"
         ),
         tags=['Регистрация и аутентификации'],
-        request_body=CheckCodeSerializer
+        request_body=CheckCodeSerializer,
+        responses={
+            200: openapi.Response(
+                description='Проверка кода и выдача токена',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "token": "****************************************",
+                            "user id": 4
+                        },
+                        "message": "Токен выдан"
+                    }
+                }
+            )
+        }
     )
     @auth_exception_handler
     def post(self, request):
@@ -173,4 +217,3 @@ class CheckCode(APIView):
     def generate_code():
         """Генерирует sms код."""
         return str(random.randint(0, 9999)).rjust(4, '0')
-

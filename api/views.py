@@ -18,7 +18,66 @@ class AccommodationDetail(APIView):
     @swagger_auto_schema(
         operation_id="AccommodationDetail",
         operation_summary="Метод возвращает информацию о жилье",
-        tags=['Жилища']
+        tags=['Жилища'],
+        responses={
+            200: openapi.Response(
+                description='Подробная информация о жилище',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "accommodation_id": 1,
+                            "address": "Пушкина 7а",
+                            "description": "Тестовое жилище 1",
+                            "image_preview": "img.ru",
+                            "images": {
+                                "1": "image1",
+                                "2": "image2"
+                            },
+                            "type": "Комната",
+                            "rooms": 2,
+                            "beds": 2,
+                            "capacity": 2,
+                            "owner_id": 1,
+                            "owner_name": "Test Owner 1",
+                            "price": 4000,
+                            "cancellation_policy": "за день до въезда",
+                            "free_dates": [
+                                {
+                                    "month": "April",
+                                    "year": 2023,
+                                    "date": [
+                                        11,
+                                        12,
+                                        30
+                                    ]
+                                },
+                                {
+                                    "month": "May",
+                                    "year": 2023,
+                                    "date": [
+                                        1,
+                                        29,
+                                        30,
+                                        31
+                                    ]
+                                },
+                                {
+                                    "month": "June",
+                                    "year": 2023,
+                                    "date": [
+                                        1,
+                                        2,
+                                        3,
+
+                                    ]
+                                }
+                            ]
+                        },
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
     )
     @exception_handler('Жилища')
     @require_authentication
@@ -61,7 +120,43 @@ class AccommodationAll(APIView):
     @swagger_auto_schema(
         operation_id="AccommodationAll",
         operation_summary="Метод возвращает информацию о всех жилищах",
-        tags=['Жилища']
+        tags=['Жилища'],
+        responses={
+            200: openapi.Response(
+                description='Все жилища',
+                examples={
+                    'application/json': {
+                        "data": [
+                            {
+                                "accommodation_id": 1,
+                                "type": "Комната",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": 4000
+                            },
+                            {
+                                "accommodation_id": 2,
+                                "type": "Отель",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "Image.com",
+                                "price": 2500
+                            },
+                            {
+                                "accommodation_id": 3,
+                                "type": "Дом",
+                                "owner_id": 2,
+                                "owner_name": "Test Owner 2",
+                                "image_preview": "image.com",
+                                "price": 7000
+                            }
+                        ],
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
 
     )
     @exception_handler('Жилища')
@@ -90,7 +185,27 @@ class AccommodationFiltering(APIView):
     @swagger_auto_schema(
         operation_id="AccommodationFiltering",
         operation_summary="Метод возвращает отфильтрованные жилища",
-        tags=['Жилища']
+        tags=['Жилища'],
+        responses={
+            200: openapi.Response(
+                description='Поиск жилищ по параметрам',
+                examples={
+                    'application/json': {
+                        "data": [
+                            {
+                                "accommodation_id": 1,
+                                "type": "Комната",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": 4000
+                            }
+                        ],
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
     )
     @exception_handler('Жилища')
     @require_authentication
@@ -140,7 +255,24 @@ class OwnerDetail(APIView):
     @swagger_auto_schema(
         operation_id="OwnerDetail",
         operation_summary="Метод возвращает информацию о хозяине",
-        tags=['Хозяин']
+        tags=['Хозяин'],
+        responses={
+            200: openapi.Response(
+                description='Информация о хозяине',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "owner_id": 1,
+                            "name": "Test Owner 1",
+                            "contact": "+79999999999",
+                            "description": "Тестовый овнер 1",
+                            "image": "https://test-image.com"
+                        },
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
     )
     @exception_handler('Хозяин')
     @require_authentication
@@ -163,7 +295,35 @@ class OwnerAccommodation(APIView):
     @swagger_auto_schema(
         operation_id="OwnerAccommodation",
         operation_summary="Метод возвращает информацию о всех жилищах хозяина",
-        tags=['Хозяин']
+        tags=['Хозяин'],
+        responses={
+            200: openapi.Response(
+                description='Все жилища хозяина',
+                examples={
+                    'application/json': {
+                        "data": [
+                            {
+                                "accommodation_id": 1,
+                                "type": "Комната",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": 4000
+                            },
+                            {
+                                "accommodation_id": 2,
+                                "type": "Отель",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "Image.com",
+                                "price": 2500
+                            }
+                        ],
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
     )
     @exception_handler('Хозяин')
     @require_authentication
@@ -184,7 +344,20 @@ class CreateBookingDate(APIView):
         operation_id="CreateBookingDate",
         operation_summary="Метод бронирования дат",
         tags=['Бронь'],
-        request_body=CreateBookingSerializer
+        request_body=CreateBookingSerializer,
+        responses={
+            200: openapi.Response(
+                description='Бронирование жилища',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "booking_id": 1
+                        },
+                        "message": "Жилье забронированно"
+                    }
+                }
+            )
+        }
     )
     @exception_handler('Бронь')
     @require_authentication
@@ -277,9 +450,24 @@ class UserDetail(APIView):
         operation_id="UserDetail",
         operation_summary="Метод возвращает информацию о пользователе",
         tags=['Пользователь'],
-
+        responses={
+            200: openapi.Response(
+                description='Подробная информация о пользователе',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "email": "test@gmail.com",
+                            "name": "TestUser1",
+                            "surname": "Tester1",
+                            "sex": 1,
+                            "phone_number": "+79279180444"
+                        },
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
     )
-
     @exception_handler('Пользователь')
     @require_authentication
     def get(self, request, id):
@@ -357,5 +545,3 @@ class UserBooking(APIView):
         }
 
         return Response(response_data)
-
-# TODO добавить во все методы responses в swagger_auto_schema
