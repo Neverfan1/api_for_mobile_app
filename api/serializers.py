@@ -42,25 +42,53 @@ class PricingSerializer(serializers.ModelSerializer):
 
 class AccommodationSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
+    owner_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Accommodation
-        fields = ('accommodation_id', 'type', 'image_preview', 'price')
+        fields = ('accommodation_id', 'type', 'owner_id',
+                  'owner_name', 'image_preview', 'price')
 
     def get_price(self, obj):
         pricing = obj.pricing_set.first()
         return pricing.price if pricing else None
 
+    def get_owner_name(self, obj):
+        return obj.owner_id.name if obj.owner_id else None
+
+
+class UserBookingSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+    owner_name = serializers.SerializerMethodField()
+    booking_dates = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Accommodation
+        fields = ('accommodation_id', 'type', 'owner_id',
+                  'owner_name', 'image_preview', 'price', 'booking_dates')
+
+    def get_price(self, obj):
+        pricing = obj.pricing_set.first()
+        return pricing.price if pricing else None
+
+    def get_owner_name(self, obj):
+        return obj.owner_id.name if obj.owner_id else None
+
+    def get_booking_dates(self, obj):
+        bookings = Booking.objects.filter(accommodation_id=obj)
+        return [booking.booking_dates for booking in bookings]
+
 
 class AccommodationDetailSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     cancellation_policy = serializers.SerializerMethodField()
+    owner_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Accommodation
         fields = ('accommodation_id', 'address', 'description',
                   'image_preview', 'images', 'type', 'rooms', 'beds',
-                  'capacity', 'owner_id', 'price', 'cancellation_policy')
+                  'capacity', 'owner_id', 'owner_name', 'price', 'cancellation_policy')
 
     def get_price(self, obj):
         pricing = obj.pricing_set.first()
@@ -70,14 +98,8 @@ class AccommodationDetailSerializer(serializers.ModelSerializer):
         pricing = obj.pricing_set.first()
         return pricing.cancellation_policy if pricing else None
 
-
-# class AccommodationFilterSerializer(serializers.Serializer):
-#     type = serializers.CharField(max_length=20)
-#     rooms = serializers.IntegerField()
-#     beds = serializers.IntegerField()
-#     capacity = serializers.IntegerField()
-#     price_from = serializers.IntegerField()
-#     price_to = serializers.IntegerField()
+    def get_owner_name(self, obj):
+        return obj.owner_id.name if obj.owner_id else None
 
 
 class OwnerSerializer(serializers.ModelSerializer):
@@ -103,4 +125,3 @@ class CancelBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = 'booking_id'
-

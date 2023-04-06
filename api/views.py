@@ -6,6 +6,7 @@ from .models import *
 from .toolkit import *
 from django.db.models import Q
 from datetime import datetime
+from drf_yasg import openapi
 
 from .ex_handler import exception_handler, DateError
 
@@ -15,7 +16,7 @@ class AccommodationDetail(APIView):
     serializer_class = AccommodationDetailSerializer
 
     @swagger_auto_schema(
-        operation_id="Accommodation",
+        operation_id="AccommodationDetail",
         operation_summary="Метод возвращает информацию о жилье",
         tags=['Жилища']
     )
@@ -58,7 +59,7 @@ class AccommodationAll(APIView):
     serializer_class = AccommodationSerializer
 
     @swagger_auto_schema(
-        operation_id="Accommodation",
+        operation_id="AccommodationAll",
         operation_summary="Метод возвращает информацию о всех жилищах",
         tags=['Жилища']
 
@@ -82,12 +83,12 @@ class AccommodationAll(APIView):
         return Response(response_data)
 
 
-class AccommodationFiltering(APIView):  # TODO сделать фильтрацию по цене, и чтобы выводилась цена
+class AccommodationFiltering(APIView):
     """Класс для фильтрации жилищ."""
     serializer_class = AccommodationSerializer
 
     @swagger_auto_schema(
-        operation_id="Accommodation",
+        operation_id="AccommodationFiltering",
         operation_summary="Метод возвращает отфильтрованные жилища",
         tags=['Жилища']
     )
@@ -137,7 +138,7 @@ class OwnerDetail(APIView):
     serializer_class = OwnerSerializer
 
     @swagger_auto_schema(
-        operation_id="Owner",
+        operation_id="OwnerDetail",
         operation_summary="Метод возвращает информацию о хозяине",
         tags=['Хозяин']
     )
@@ -155,11 +156,32 @@ class OwnerDetail(APIView):
         return Response(response_data)
 
 
+class OwnerAccommodation(APIView):
+    """Класс для работы с владельцем жилища."""
+    serializer_class = AccommodationSerializer
+
+    @swagger_auto_schema(
+        operation_id="OwnerAccommodation",
+        operation_summary="Метод возвращает информацию о всех жилищах хозяина",
+        tags=['Хозяин']
+    )
+    @exception_handler('Хозяин')
+    @require_authentication
+    def get(self, request, id):
+        data = Accommodation.objects.filter(owner_id=id)
+        serializer = self.serializer_class(data, many=True)
+        response_data = {
+            "data": serializer.data,
+            "message": 'Информация получена',
+        }
+        return Response(response_data)
+
+
 class CreateBookingDate(APIView):
     serializers_class = CreateBookingSerializer
 
     @swagger_auto_schema(
-        operation_id="BookingDate",
+        operation_id="CreateBookingDate",
         operation_summary="Метод бронирования дат",
         tags=['Бронь'],
         request_body=CreateBookingSerializer
@@ -213,9 +235,22 @@ class CancelBookingDate(APIView):
     serializers_class = CancelBookingSerializer
 
     @swagger_auto_schema(
-        operation_id="CancelBooking",
+        operation_id="CancelBookingDate",
         operation_summary="Метод удаления брони",
-        tags=['Бронь']
+        tags=['Бронь'],
+        responses={
+            200: openapi.Response(
+                description='Удаление брони по ID',
+                examples={
+                    'application/json': {
+                        "data": {
+                            "booking_id": 5
+                        },
+                        "message": "Бронь успешно удалена"
+                    }
+                }
+            )
+        }
     )
     @exception_handler('Бронь')
     @require_authentication
@@ -234,14 +269,17 @@ class CancelBookingDate(APIView):
 
 
 class UserDetail(APIView):
-    """Класс для работы с владельцем."""
+    """Класс для работы с пользователем."""
     serializer_class = UserSerializer
 
+
     @swagger_auto_schema(
-        operation_id="User",
+        operation_id="UserDetail",
         operation_summary="Метод возвращает информацию о пользователе",
-        tags=['Пользователь']
+        tags=['Пользователь'],
+
     )
+
     @exception_handler('Пользователь')
     @require_authentication
     def get(self, request, id):
@@ -255,5 +293,69 @@ class UserDetail(APIView):
 
         return Response(response_data)
 
-# TODO написать get метод, который показывает текущие брони пользователя
-# TODO написать get метод, который показывает все жилища хозяина
+
+class UserBooking(APIView):
+    """Класс для работы с  пользователем."""
+    serializer_class = UserBookingSerializer
+
+    @swagger_auto_schema(
+        operation_id="UserBooking",
+        operation_summary="Метод возвращает информацию о всех бронях пользователя",
+        tags=['Пользователь'],
+        responses={
+            200: openapi.Response(
+                description='Список бронирований пользователя',
+                examples={
+                    'application/json': {
+                        "data": [
+                            {
+                                "accommodation_id": 1,
+                                "type": "Комната",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": 4000,
+                                "booking_dates": [
+                                    [
+                                        {
+                                            "date": [
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5,
+                                                6,
+                                                7,
+                                                8,
+                                                9,
+                                                10
+                                            ],
+                                            "year": 2023,
+                                            "month": "April"
+                                        }
+                                    ]
+                                ]
+                            }
+                        ],
+                        "message": "Информация получена"
+                    }
+                }
+            )
+        }
+    )
+    @exception_handler('Пользователь')
+    @require_authentication
+    def get(self, request):
+        user_id = request.META.get('HTTP_ID')
+        bookings = Booking.objects.filter(user_id=user_id)
+        accommodation_ids = [booking.accommodation_id_id for booking in bookings]
+        data = Accommodation.objects.filter(accommodation_id__in=accommodation_ids)
+        serializer = self.serializer_class(data, many=True)
+        response_data = {
+            "data": serializer.data,
+            "message": 'Информация получена',
+        }
+
+        return Response(response_data)
+
+# TODO добавить во все методы responses в swagger_auto_schema

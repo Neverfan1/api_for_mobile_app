@@ -28,9 +28,11 @@ app_urls = [
     path("accommodation/", AccommodationAll.as_view(), name="accommodation"),
     path("accommodation-filter/", AccommodationFiltering.as_view(), name="accommodation_filter"),
     path("owner-detail/<int:id>/", OwnerDetail.as_view(), name="owner_detail"),
+    path("owner-accommodation/<int:id>/", OwnerAccommodation.as_view(), name="owner_accommodation"),
     path("booking-date/", CreateBookingDate.as_view(), name="booking_date"),
     path("cancel-booking-date/<int:id>/", CancelBookingDate.as_view(), name="cancel_booking_date"),
     path("user-detail/<int:id>/", UserDetail.as_view(), name="user_detail"),
+    path("user-booking/", UserBooking.as_view(), name="user_booking"),
 ]
 
 # Shema-swagger-ui
