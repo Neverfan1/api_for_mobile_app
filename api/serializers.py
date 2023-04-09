@@ -60,12 +60,13 @@ class AccommodationSerializer(serializers.ModelSerializer):
 class UserBookingSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     owner_name = serializers.SerializerMethodField()
+    booking_id = serializers.SerializerMethodField()
     booking_dates = serializers.SerializerMethodField()
 
     class Meta:
         model = Accommodation
         fields = ('accommodation_id', 'type', 'owner_id',
-                  'owner_name', 'image_preview', 'price', 'booking_dates')
+                  'owner_name', 'image_preview', 'price', 'booking_id', 'booking_dates')
 
     def get_price(self, obj):
         pricing = obj.pricing_set.first()
@@ -73,6 +74,10 @@ class UserBookingSerializer(serializers.ModelSerializer):
 
     def get_owner_name(self, obj):
         return obj.owner_id.name if obj.owner_id else None
+
+    def get_booking_id(self, obj):
+        bookings = Booking.objects.filter(accommodation_id=obj)
+        return [booking.booking_id for booking in bookings]
 
     def get_booking_dates(self, obj):
         bookings = Booking.objects.filter(accommodation_id=obj)
