@@ -6,10 +6,7 @@ import json
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import pymysql
 from corsheaders.defaults import default_headers
-
-pymysql.install_as_MySQLdb()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,7 +96,7 @@ WSGI_APPLICATION = 'api_settings.wsgi.application'
 #
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'HOST': os.getenv('DB_HOST'),
