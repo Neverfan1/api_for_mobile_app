@@ -121,6 +121,11 @@ class AccommodationAll(APIView):
         operation_id="AccommodationAll",
         operation_summary="Метод возвращает информацию о всех жилищах",
         tags=['Жилища'],
+        manual_parameters=[
+            openapi.Parameter(name='offset', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Смещение'),
+            openapi.Parameter(name='count', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Количество записей'),
+        ],
         responses={
             200: openapi.Response(
                 description='Все жилища',
@@ -186,6 +191,22 @@ class AccommodationFiltering(APIView):
         operation_id="AccommodationFiltering",
         operation_summary="Метод возвращает отфильтрованные жилища",
         tags=['Жилища'],
+        manual_parameters=[
+            openapi.Parameter(name='type', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING, description='Тип жилища'),
+            openapi.Parameter(name='rooms', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Количество комнат'),
+            openapi.Parameter(name='beds', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Количество кроватей'),
+            openapi.Parameter(name='capacity', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Вместимость'),
+            openapi.Parameter(name='price_to', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Максимальная цена'),
+            openapi.Parameter(name='price_from', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Минимальная цена'),
+            openapi.Parameter(name='offset', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description='Смещение'),
+            openapi.Parameter(name='count', in_=openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                              description='Количество записей'),
+        ],
         responses={
             200: openapi.Response(
                 description='Поиск жилищ по параметрам',
@@ -444,7 +465,6 @@ class CancelBookingDate(APIView):
 class UserDetail(APIView):
     """Класс для работы с пользователем."""
     serializer_class = UserSerializer
-
 
     @swagger_auto_schema(
         operation_id="UserDetail",
