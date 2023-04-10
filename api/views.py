@@ -254,7 +254,10 @@ class AccommodationFiltering(APIView):
             filters &= Q(capacity=capacity)
         if price_from and price_to:
             filters &= Q(pricing__price__gte=price_from, pricing__price__lte=price_to)
-
+        elif price_from:
+            filters &= Q(pricing__price__gte=price_from)
+        elif price_to:
+            filters &= Q(pricing__price__lte=price_to)
         # фильтруем жилища по заданным параметрам
         accommodations = Accommodation.objects.filter(filters).order_by('accommodation_id')
 
