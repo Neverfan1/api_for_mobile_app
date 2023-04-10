@@ -13,6 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 if (BASE_DIR / 'config' / '.env').exists():
     load_dotenv(os.path.abspath(BASE_DIR / 'config' / '.env'))
 
+if (BASE_DIR / '.env').exists():
+    load_dotenv(os.path.abspath(BASE_DIR / '.env'))
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
