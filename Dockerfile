@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir --upgrade -r /api-mobile/requirements.txt
 COPY ./api /api-mobile/api
 COPY ./api_settings /api-mobile/api_settings
 
-CMD ["python", "manage.py", "runserver", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python", "api/manage.py", "runserver", "--host", "0.0.0.0", "--port", "80"]
