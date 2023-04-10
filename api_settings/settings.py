@@ -10,7 +10,9 @@ from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(os.path.abspath(BASE_DIR / 'config' / '.env'))
+if (BASE_DIR / 'config' / '.env').exists():
+    load_dotenv(os.path.abspath(BASE_DIR / 'config' / '.env'))
+
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
