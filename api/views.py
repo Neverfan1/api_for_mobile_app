@@ -219,7 +219,35 @@ class AccommodationFiltering(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
+                                "address": "Пушкина 7а",
                                 "price": 4000
+                            },
+                            {
+                                "accommodation_id": 2,
+                                "type": "Отель",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "address": "Кирова 41",
+                                "price": 2500
+                            },
+                            {
+                                "accommodation_id": 3,
+                                "type": "Дом",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "address": "Антонова 1",
+                                "price": 7000
+                            },
+                            {
+                                "accommodation_id": 4,
+                                "type": "Комната",
+                                "owner_id": 2,
+                                "owner_name": "Test Owner 2",
+                                "image_preview": "none",
+                                "address": "Вишневый проезд 1",
+                                "price": 2315
                             }
                         ],
                         "message": "Информация получена"
@@ -507,7 +535,7 @@ class UserDetail(APIView):
 
 class UserBooking(APIView):
     """Класс для работы с  пользователем."""
-    serializer_class = UserBookingSerializer
+    serializer_class = BookingWithAccommodationSerializer
 
     @swagger_auto_schema(
         operation_id="UserBooking",
@@ -520,32 +548,90 @@ class UserBooking(APIView):
                     'application/json': {
                         "data": [
                             {
+                                "booking_id": 5,
                                 "accommodation_id": 1,
                                 "type": "Комната",
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
-                                "price": 4000,
+                                "price": "4000.00",
                                 "booking_dates": [
-                                    [
-                                        {
-                                            "date": [
-                                                1,
-                                                2,
-                                                3,
-                                                4,
-                                                5,
-                                                6,
-                                                7,
-                                                8,
-                                                9,
-                                                10
-                                            ],
-                                            "year": 2023,
-                                            "month": "April"
-                                        }
-                                    ]
-                                ]
+                                    {
+                                        "date": [
+                                            17,
+                                            18,
+                                            19
+                                        ],
+                                        "year": 2023,
+                                        "month": "August"
+                                    }
+                                ],
+                                "address": "Пушкина 7а"
+                            },
+                            {
+                                "booking_id": 6,
+                                "accommodation_id": 2,
+                                "type": "Отель",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": "2500.00",
+                                "booking_dates": [
+                                    {
+                                        "date": [
+                                            20,
+                                            21,
+                                            22
+                                        ],
+                                        "year": 2023,
+                                        "month": "August"
+                                    }
+                                ],
+                                "address": "Кирова 41"
+                            },
+                            {
+                                "booking_id": 4,
+                                "accommodation_id": 2,
+                                "type": "Отель",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": "2500.00",
+                                "booking_dates": [
+                                    {
+                                        "date": [
+                                            17,
+                                            18,
+                                            19
+                                        ],
+                                        "year": 2023,
+                                        "month": "August"
+                                    }
+                                ],
+                                "address": "Кирова 41"
+                            },
+                            {
+                                "booking_id": 7,
+                                "accommodation_id": 3,
+                                "type": "Дом",
+                                "owner_id": 1,
+                                "owner_name": "Test Owner 1",
+                                "image_preview": "img.ru",
+                                "price": "7000.00",
+                                "booking_dates": [
+                                    {
+                                        "date": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5
+                                        ],
+                                        "year": 2023,
+                                        "month": "September"
+                                    }
+                                ],
+                                "address": "Антонова 1"
                             }
                         ],
                         "message": "Информация получена"
@@ -558,10 +644,9 @@ class UserBooking(APIView):
     @require_authentication
     def get(self, request):
         user_id = request.META.get('HTTP_ID')
-        bookings = Booking.objects.filter(user_id=user_id)
-        accommodation_ids = [booking.accommodation_id_id for booking in bookings]
-        data = Accommodation.objects.filter(accommodation_id__in=accommodation_ids)
-        serializer = self.serializer_class(data, many=True)
+        bookings = Booking.objects.filter(user_id=user_id).select_related('accommodation_id')
+        serializer = self.serializer_class(bookings, many=True)
+
         response_data = {
             "data": serializer.data,
             "message": 'Информация получена',

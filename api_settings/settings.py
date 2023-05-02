@@ -18,7 +18,7 @@ if (BASE_DIR / '.env').exists():
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = os.getenv('PRODUCTION')
 
 ALLOWED_HOSTS = json.loads(os.getenv('ALLOWED_HOSTS', '[]'))
 
@@ -82,17 +82,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'api_settings.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 
 # *************************************** #
 #           DATABASE SETTINGS             #

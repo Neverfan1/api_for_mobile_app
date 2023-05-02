@@ -17,8 +17,8 @@ class RegistrationSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255, default="", allow_blank=True,
                                    validators=[EmailValidator])
 
-    def validate_phone(self, value):
-        if not re.fullmatch(r'^(\+7\((\d{3})\)\s((\d{3})-(\d{4})))$', value):
+    def validate_phone_number(self, value):
+        if not re.fullmatch(r'^(8(\d{10}))$', value):
             raise serializers.ValidationError('Телефон не совпадает с маской')
 
         return value
@@ -47,7 +47,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Accommodation
         fields = ('accommodation_id', 'type', 'owner_id',
-                  'owner_name', 'image_preview', 'price')
+                  'owner_name', 'image_preview', 'address', 'price')
 
     def get_price(self, obj):
         pricing = obj.pricing_set.first()
@@ -60,13 +60,11 @@ class AccommodationSerializer(serializers.ModelSerializer):
 class UserBookingSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     owner_name = serializers.SerializerMethodField()
-    booking_id = serializers.SerializerMethodField()
-    booking_dates = serializers.SerializerMethodField()
 
     class Meta:
         model = Accommodation
         fields = ('accommodation_id', 'type', 'owner_id',
-                  'owner_name', 'image_preview', 'price', 'booking_id', 'booking_dates')
+                  'owner_name', 'image_preview', 'price', 'address')
 
     def get_price(self, obj):
         pricing = obj.pricing_set.first()
@@ -75,14 +73,19 @@ class UserBookingSerializer(serializers.ModelSerializer):
     def get_owner_name(self, obj):
         return obj.owner_id.name if obj.owner_id else None
 
-    def get_booking_id(self, obj):
-        bookings = Booking.objects.filter(accommodation_id=obj)
-        return [booking.booking_id for booking in bookings]
 
-    def get_booking_dates(self, obj):
-        bookings = Booking.objects.filter(accommodation_id=obj)
-        return [booking.booking_dates for booking in bookings]
+class BookingWithAccommodationSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source='accommodation_id.type')
+    owner_id = serializers.IntegerField(source='accommodation_id.owner_id_id')
+    owner_name = serializers.CharField(source='accommodation_id.owner_id.name')
+    image_preview = serializers.CharField(source='accommodation_id.image_preview')
+    price = serializers.DecimalField(source='accommodation_id.pricing_set.first.price', max_digits=10, decimal_places=2)
+    address = serializers.CharField(source='accommodation_id.address')
 
+    class Meta:
+        model = Booking
+        fields = ('booking_id', 'accommodation_id', 'type', 'owner_id', 'owner_name', 'image_preview', 'price',
+                  'booking_dates', 'address')
 
 class AccommodationDetailSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
