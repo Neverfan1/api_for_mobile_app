@@ -79,12 +79,14 @@ class BookingWithAccommodationSerializer(serializers.ModelSerializer):
     owner_id = serializers.IntegerField(source='accommodation_id.owner_id_id')
     owner_name = serializers.CharField(source='accommodation_id.owner_id.name')
     image_preview = serializers.CharField(source='accommodation_id.image_preview')
+    images = serializers.CharField(source='accommodation_id.images')
     price = serializers.DecimalField(source='accommodation_id.pricing_set.first.price', max_digits=10, decimal_places=2)
     address = serializers.CharField(source='accommodation_id.address')
 
     class Meta:
         model = Booking
-        fields = ('booking_id', 'accommodation_id', 'type', 'owner_id', 'owner_name', 'image_preview', 'price',
+        fields = ('booking_id', 'accommodation_id', 'type', 'owner_id',
+                  'owner_name', 'image_preview', 'images', 'price',
                   'booking_dates', 'address')
 
 class AccommodationDetailSerializer(serializers.ModelSerializer):
