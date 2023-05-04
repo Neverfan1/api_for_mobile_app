@@ -138,6 +138,7 @@ class AccommodationAll(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
+                                "address": "Test",
                                 "price": 4000
                             },
                             {
@@ -146,6 +147,7 @@ class AccommodationAll(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "Image.com",
+                                "address": "Test",
                                 "price": 2500
                             },
                             {
@@ -154,6 +156,7 @@ class AccommodationAll(APIView):
                                 "owner_id": 2,
                                 "owner_name": "Test Owner 2",
                                 "image_preview": "image.com",
+                                "address": "Test",
                                 "price": 7000
                             }
                         ],
@@ -554,7 +557,11 @@ class UserBooking(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
-                                "price": "4000.00",
+                                "images": [
+                                    "image.com",
+                                    "image2.com"
+                                ],
+                                "price": 4000,
                                 "booking_dates": [
                                     {
                                         "date": [
@@ -575,7 +582,11 @@ class UserBooking(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
-                                "price": "2500.00",
+                                "images": [
+                                    "image.com",
+                                    "image2.com"
+                                ],
+                                "price": 2500,
                                 "booking_dates": [
                                     {
                                         "date": [
@@ -596,7 +607,11 @@ class UserBooking(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
-                                "price": "2500.00",
+                                "images": [
+                                    "image.com",
+                                    "image2.com"
+                                ],
+                                "price": 2500,
                                 "booking_dates": [
                                     {
                                         "date": [
@@ -617,7 +632,11 @@ class UserBooking(APIView):
                                 "owner_id": 1,
                                 "owner_name": "Test Owner 1",
                                 "image_preview": "img.ru",
-                                "price": "7000.00",
+                                "images": [
+                                    "image.com",
+                                    "image2.com"
+                                ],
+                                "price": 7000,
                                 "booking_dates": [
                                     {
                                         "date": [
