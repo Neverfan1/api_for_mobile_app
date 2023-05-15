@@ -259,8 +259,8 @@ class AccommodationFiltering(APIView):
             )
         }
     )
-    # @exception_handler('Жилища')
-    # @require_authentication
+    @exception_handler('Жилища')
+    @require_authentication
     def get(self, request):
         type = self.request.query_params.get('type')
         rooms = self.request.query_params.get('rooms')
@@ -522,8 +522,8 @@ class UserDetail(APIView):
             )
         }
     )
-    # @exception_handler('Пользователь')
-    # @require_authentication
+    @exception_handler('Пользователь')
+    @require_authentication
     def get(self, request):
         """Возвращает информацию о пользователе"""
         data = UsersApp.objects.get(user_id=get_user_id_from_token(request))
