@@ -660,7 +660,7 @@ class UserBooking(APIView):
         }
     )
     @exception_handler('Пользователь')
-    # @require_authentication
+    @require_authentication
     def get(self, request):
         user_id = get_user_id_from_token(request)
         bookings = Booking.objects.filter(user_id=user_id).select_related('accommodation_id')
