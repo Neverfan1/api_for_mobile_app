@@ -149,7 +149,7 @@ class AuthUser(APIView):
 
             return Response({
                 'data': {
-                    'User id': user.user_id
+                    'user id': user.user_id
                 },
                 'message': f'Код для входа отправлен на почту {user.email}'
             })
