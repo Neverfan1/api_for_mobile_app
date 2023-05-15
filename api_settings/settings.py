@@ -159,17 +159,11 @@ SWAGGER_SETTINGS = {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
-        },
-        'ID': {
-            'type': 'apiKey',
-            'name': 'ID',
-            'in': 'header'
         }
     },
     'SECURITY_REQUIREMENTS': [
         {
-            'Bearer': [],
-            'ID': []
+            'Bearer': []
         }
     ]
 }
