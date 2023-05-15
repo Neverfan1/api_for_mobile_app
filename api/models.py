@@ -28,7 +28,7 @@ class UsersApp(models.Model):
 class MyToken(models.Model):
     token_id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(UsersApp, related_name='auth_token', on_delete=models.CASCADE,  db_column="user_id")
-    key = models.CharField(max_length=40, unique=True, blank=True)
+    key = models.CharField(max_length=100, unique=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

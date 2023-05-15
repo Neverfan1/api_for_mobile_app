@@ -447,7 +447,7 @@ class CreateBookingDate(APIView):
         new_booking = Booking.objects.create(
             booking_dates=booking_dates,
             accommodation_id=accommodation,
-            user_id=UsersApp.objects.get(user_id=request.META.get('HTTP_ID')),
+            user_id=UsersApp.objects.get(user_id=get_user_id_from_token(request)),
         )
         new_booking.save()
 
@@ -524,9 +524,9 @@ class UserDetail(APIView):
     )
     @exception_handler('Пользователь')
     @require_authentication
-    def get(self, request, id):
-        """Возвращает информацию о хозяине"""
-        data = UsersApp.objects.get(user_id=id)
+    def get(self, request):
+        """Возвращает информацию о пользователе"""
+        data = UsersApp.objects.get(user_id=get_user_id_from_token(request))
         serializer = self.serializer_class(data, many=False)
         response_data = {
             "data": serializer.data,
@@ -660,9 +660,9 @@ class UserBooking(APIView):
         }
     )
     @exception_handler('Пользователь')
-    @require_authentication
+    # @require_authentication
     def get(self, request):
-        user_id = request.META.get('HTTP_ID')
+        user_id = get_user_id_from_token(request)
         bookings = Booking.objects.filter(user_id=user_id).select_related('accommodation_id')
         serializer = self.serializer_class(bookings, many=True)
 

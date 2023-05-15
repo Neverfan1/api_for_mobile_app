@@ -1,3 +1,5 @@
+import os
+
 from .models import MyToken
 from django.http import HttpResponseBadRequest
 from datetime import datetime
@@ -5,7 +7,7 @@ import datetime
 from functools import wraps
 from django.http import HttpResponse
 from .ex_handler import exception_handler, TokenError
-
+import jwt
 
 
 def require_authentication(view_func):
@@ -13,8 +15,7 @@ def require_authentication(view_func):
     def wrapper(self, request, *args, **kwargs):
         try:
             token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]
-            user_id = request.META.get('HTTP_ID')
-            user = MyToken.objects.get(key=token, user_id=user_id).user_id
+            user = MyToken.objects.get(key=token).user_id
             if user:
                 request.user = user
                 return view_func(self, request, *args, **kwargs)
@@ -126,3 +127,17 @@ def create_booking_dict():
 
             }}]
     return dict_booking
+
+
+def get_user_id_from_token(request):
+    token = request.META.get('HTTP_AUTHORIZATION', '').split(' ')[1]  # Получаем токен из заголовка Authorization
+
+    try:
+        payload = jwt.decode(token, os.getenv('SECRET_KEY'),
+                             algorithms=['HS256'])  # Раскодируем токен с использованием секретного ключа
+        user_id = payload.get('user_id')  # Получаем значение user_id из раскодированной полезной нагрузки
+        return user_id
+    except jwt.ExpiredSignatureError:
+        raise jwt.ExpiredSignatureError("Token has expired.")  # Обработка исключения, если токен истек срок действия
+    except jwt.InvalidTokenError:
+        raise jwt.InvalidTokenError("Invalid token.")  # Обработка исключения, если токен недействительный или поврежден
