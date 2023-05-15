@@ -205,12 +205,12 @@ class CheckCode(APIView):
         user.registr = 1
         payload = {'user_id': user_id}  # Создаем словарь с полезной нагрузкой, включающей user_id
         token = jwt.encode(payload, os.getenv('SECRET_KEY'),
-                           algorithm='HS256')  # Подписываем словарь с использованием секретного ключа
+                           algorithm='HS256')  # Генерируем новый токен с использованием секретного ключа
         user.save()
 
-        new_token = MyToken.objects.create(
-            key=token,
-            user_id=user
+        MyToken.objects.update_or_create(
+            user_id=user,
+            defaults={'key': token}
         )
         # new_token.save()
         return Response({
