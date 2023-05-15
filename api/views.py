@@ -79,8 +79,8 @@ class AccommodationDetail(APIView):
             )
         }
     )
-    # @exception_handler('Жилища')
-    # @require_authentication
+    @exception_handler('Жилища')
+    @require_authentication
     def get(self, request, id):
         """Возвращает информацию о жилье"""
         data = Accommodation.objects.get(accommodation_id=id)
@@ -167,8 +167,8 @@ class AccommodationAll(APIView):
         }
 
     )
-    # @exception_handler('Жилища')
-    # @require_authentication
+    @exception_handler('Жилища')
+    @require_authentication
     def get(self, request):
         """Возвращает информацию о жилье"""
         offset = self.request.query_params.get('offset')
@@ -329,8 +329,8 @@ class OwnerDetail(APIView):
             )
         }
     )
-    # @exception_handler('Хозяин')
-    # @require_authentication
+    @exception_handler('Хозяин')
+    @require_authentication
     def get(self, request, id):
         """Возвращает информацию о хозяине"""
         data = Owner.objects.get(owner_id=id)
@@ -380,8 +380,8 @@ class OwnerAccommodation(APIView):
             )
         }
     )
-    # @exception_handler('Хозяин')
-    # @require_authentication
+    @exception_handler('Хозяин')
+    @require_authentication
     def get(self, request, id):
         data = Accommodation.objects.filter(owner_id=id)
         serializer = self.serializer_class(data, many=True)
@@ -414,8 +414,8 @@ class CreateBookingDate(APIView):
             )
         }
     )
-    # @exception_handler('Бронь')
-    # @require_authentication
+    @exception_handler('Бронь')
+    @require_authentication
     def post(self, request):
         """Делает бронь на определенное жилье для определенного пользователя"""
 
@@ -480,8 +480,8 @@ class CancelBookingDate(APIView):
             )
         }
     )
-    # @exception_handler('Бронь')
-    # @require_authentication
+    @exception_handler('Бронь')
+    @require_authentication
     def delete(self, request, id):
         """Удаляет бронь по ID"""
         booking = Booking.objects.get(booking_id=id)
@@ -659,8 +659,8 @@ class UserBooking(APIView):
             )
         }
     )
-    # @exception_handler('Пользователь')
-    # @require_authentication
+    @exception_handler('Пользователь')
+    @require_authentication
     def get(self, request):
         user_id = get_user_id_from_token(request)
         bookings = Booking.objects.filter(user_id=user_id).select_related('accommodation_id')
