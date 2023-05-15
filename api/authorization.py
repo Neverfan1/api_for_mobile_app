@@ -8,6 +8,7 @@ from .serializers import *
 from .models import *
 from django.core.mail import send_mail
 from .toolkit import *
+import jwt
 
 from .ex_handler import auth_exception_handler, MissingEmailCode, DifferentCode, DoesNotExistID
 from .custom_loguru import auth_logger
@@ -202,12 +203,19 @@ class CheckCode(APIView):
             raise DifferentCode(sms_code)
 
         user.registr = 1
-        token, created = MyToken.objects.get_or_create(user_id=user)
+        payload = {'user_id': user_id}  # Создаем словарь с полезной нагрузкой, включающей user_id
+        token = jwt.encode(payload, os.getenv('SECRET_KEY'),
+                           algorithm='HS256')  # Подписываем словарь с использованием секретного ключа
         user.save()
 
+        new_token = MyToken.objects.create(
+            key=token,
+            user_id=user
+        )
+        # new_token.save()
         return Response({
             'data': {
-                'token': token.key,
+                'token': token,
                 'user id': user.user_id
             },
             'message': 'Токен выдан'
